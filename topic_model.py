@@ -5,10 +5,13 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 from sklearn.decomposition import NMF
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans 
 import nltk 
 from sklearn.feature_extraction.text import TfidfVectorizer
 import matplotlib.pyplot as plt  
 import matplotlib
+from get_stop_words import custom_stop_words 
+
 
 plt.style.use('ggplot')
 font = {'family' : 'DejaVu Sans',
@@ -74,47 +77,51 @@ def get_topic_words(H, features, n_features):
     top_word_indexes = H.argsort()[:, ::-1][:,:n_features]
     return features[top_word_indexes]
 
-if __name__ == '__main__':
-    df = pd.read_pickle('data/energy_cleaned.pkl')
-    #df = df.sample(n = 500, random_state = 37)
+def document_topics(W):
+    return W.argsort()[:,::-1][:,0]
+
+def get_kmeans(X):
+    kmeans = KMeans(n_clusters = 7,random_state = 1234)
+    labels = kmeans.fit_predict(X)
+    return kmeans,labels
+
+def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
+    new_stop_words = list(custom_stop_words)
+    new_stop_words.extend(stop)
+    new_stop_words = set(new_stop_words)
+    if cluster:
+        df = df.loc[df['cluster'] == cluster]
     df['text'] = df['text'].apply(lambda x: lemmatize_str(x))
     corpus = df['text']
-    states = ['alabama','alaska','arizona','arkansas','california','colorado',
-            'connecticut','delaware','florida','georgia','hawaii','idaho','illinois',
-            'indiana','iowa','kansas','kentucky','louisiana','maine','maryland',
-            'massachusetts','michigan','minnesota','mississippi','missouri',
-            'montana','nebraska','nevada','hampshire','jersey',
-            'mexico','york','carolina','dakota','ohio',
-            'oklahoma','oregon','pennsylvania','rhode','carolina',
-            'dakota','tennessee','texas','utah','vermont',
-            'virginia','washington','virginia','wisconsin','wyoming']
+    X, features = vectorize_tf_idf(df,'text',new_stop_words)
+    if model == 'NMF':
+        W,H = get_nmf(X,n_components = n, alpha =alpha)
+        return df,X,features,W,H
+    else:
+        kmeans,kmeans_labels = get_kmeans(X)
+        return df,X,features,kmeans,kmeans_labels
+    
 
-    new_stop_words = states + ['section', 'shall', 'state','law','including','chapter','cost',
-                    'service','pursuant','act','provided','amended','public','plan',
-                    'board','project','department','year','purpose','person','authority',
-                    'agency','subdivision','program','commissioner','new','paragraph',
-                    'provision','commission','mean','county','use','subsection','following',
-                    'required','effective','authorized','article','date','read','federal',
-                    'provide','requirement','day','prior','include','general','minnesota',
-                    'office','available','code','district','director','york','subject',
-                    'statute','sec','approved','follows','hawaii','customer','change','ha',
-                    'senate','local','legislature','member','standard','effect','enacted',
-                    'order','unit','necessary','ii','thousand','defined','limited','committee'
-                    'period','jersey','council','2020','january','account','title',
-                    'division','annual','municipality','eligible','adding','california',
-                    'resolved','revised','city','proposed','governor','action','et','10',
-                    'july','accordance','secretary','le','2019','line','thereof','cent',
-                    'establish','related','adopted','adaptation','imposed','applicable',
-                    'adopt','30','issued','determined','make','vermont','said',
-                    'reccomendation','appointed','notwithstanding','regional','unless',
-                    'ensure','virginia']
-    custom_lematize_dict = {'electrical': 'electric'}
-    custom_stop_words = get_stop_words(new_stop_words)
-    #X, features = vectorize_tf(corpus)
-    X, features = vectorize_tf_idf(df,'text',custom_stop_words)
-    top_words = get_top_words(X.sum(axis = 0),features,200)
-    n = 15
-    W, H = get_nmf(X,n)
-    topics = get_topic_words(H,features,n)
+if __name__ == '__main__':
+    df = pd.read_pickle('clustered_data.pkl')
+    n = 7
+    stop_words = ['vehicle','motor']
+    df,X,features,W,H = main(df,n =n,cluster = 3,stop = stop_words)
+    topics = get_topic_words(H,features,10)
+
+
+    #df = df.sample(n = 500, random_state = 37)
+    # df['text'] = df['text'].apply(lambda x: lemmatize_str(x))
+    # corpus = df['text']
+
+    # X, features = vectorize_tf_idf(df,'text',custom_stop_words)
+    # top_words = get_top_words(X.sum(axis = 0),features,200)
+    # n = 7
+    # kmeans,kmeans_labels = get_kmeans(X)
+    # df['cluster'] = kmeans_labels
+    # df.to_pickle('clustered_data')
+    #W, H = get_nmf(X,n)
+    #topics = get_topic_words(H,features,n)
+    #df['topic_1'] = document_topics(W)
 
     #plot_pca(X.toarray())
