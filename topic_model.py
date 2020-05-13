@@ -10,7 +10,8 @@ import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 import matplotlib.pyplot as plt  
 import matplotlib
-from get_stop_words import custom_stop_words 
+from get_stop_words import custom_stop_words,cluster_one_words,cluster_two_words
+import get_stop_words
 
 
 plt.style.use('ggplot')
@@ -28,12 +29,7 @@ def lemmatize_str(string):
     lemmatizer = nltk.stem.WordNetLemmatizer()
     return " ".join([lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(string)])
 
-def get_stop_words(new_stop_words=None):
-    # Retrieve stop words and append any additional stop words
-    stop_words = list(ENGLISH_STOP_WORDS)
-    if new_stop_words:
-        stop_words.extend(new_stop_words)
-    return set(stop_words)
+
 
 def vectorize_tf(corpus):
     vectorizer = CountVectorizer(stop_words = custom_stop_words)
@@ -85,12 +81,20 @@ def get_kmeans(X):
     labels = kmeans.fit_predict(X)
     return kmeans,labels
 
+def kmeans_topics(X,kmeans_labels,features,n,n_words = 10):
+    topics = []
+    for idx in range(n):
+        mask = kmeans_labels == idx
+        cluster = X[mask]
+        topic = get_top_words(cluster.sum(axis = 0),features,n_words)
+        topics.append(topic)
+    return topics
 def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
     new_stop_words = list(custom_stop_words)
     new_stop_words.extend(stop)
     new_stop_words = set(new_stop_words)
     if cluster:
-        df = df.loc[df['cluster'] == cluster]
+        df = df.loc[df['clusters'] == cluster]
     df['text'] = df['text'].apply(lambda x: lemmatize_str(x))
     corpus = df['text']
     X, features = vectorize_tf_idf(df,'text',new_stop_words)
@@ -104,18 +108,19 @@ def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
 
 if __name__ == '__main__':
     df = pd.read_pickle('clustered_data.pkl')
-    n = 7
-    stop_words = ['vehicle','motor']
-    df,X,features,W,H = main(df,n =n,cluster = 3,stop = stop_words)
+    n = 3
+    stop_words = get_stop_words.cluster_four_words
+    df,X,features,W,H = main(df,n =n,cluster = 5,model = 'NMF')
     topics = get_topic_words(H,features,10)
-
+    print(topics)
+    #topics = kmeans_topics(X,kmeans_labels,features,n,15)
 
     #df = df.sample(n = 500, random_state = 37)
     # df['text'] = df['text'].apply(lambda x: lemmatize_str(x))
     # corpus = df['text']
 
     # X, features = vectorize_tf_idf(df,'text',custom_stop_words)
-    # top_words = get_top_words(X.sum(axis = 0),features,200)
+    #top_words = get_top_words(X.sum(axis = 0),features,200)
     # n = 7
     # kmeans,kmeans_labels = get_kmeans(X)
     # df['cluster'] = kmeans_labels
