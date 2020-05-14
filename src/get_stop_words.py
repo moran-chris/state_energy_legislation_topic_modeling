@@ -37,11 +37,12 @@ new_stop_words = states + ['section', 'shall', 'state','law','including','chapte
                     'adopt','30','issued','determined','make','vermont','said',
                     'reccomendation','appointed','notwithstanding','regional','unless',
                     'ensure','virginia']
-custom_lematize_dict = {'electrical': 'electric'}
+custom_lematize_dict = {'electrical': 'electric','electricity': 'electric'}
 custom_stop_words = get_stop_words(new_stop_words)
 
-cluster_one_words = ['pl2007','111d','al','c340','c262c45','rcw']
-cluster_two_words = ['c23','pl1999','c48349','ey']
+cluster_one_words = ['111d','pl2007','111d','al','c340','c262c45','rcw']
+cluster_two_words = ['c23','pl1999','c48349','ey','c48349']
 cluster_four_words = ['tax','credit','taxpayer','revenue','2355','taxable']
 cluster_five_words = ['energy',]
-transportation_stop_words = ['vehicle']
+cluster_three_words = ['vehicle']
+cluster_six_words = ['committee','task','house','representative']
