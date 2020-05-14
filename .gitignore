@@ -1,9 +1,0 @@
-*.pkl
-*.tsv
-*.csv
-*.html
-*.npz
-__pycache__/*
-scrape.py
-.gitignore
-
