@@ -4,3 +4,4 @@
 *.html
 *.npz
 __pycache__/*
+scrape.py
