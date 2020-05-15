@@ -11,7 +11,9 @@ The below analysis performs topic modeling on state legislation pertaining to th
 ## The Data 
 
 As mentioned above the data used was exctracted from the [NCLS' website](https://www.ncsl.org/research/telecommunications-and-information-technology/ncsl-50-state-searchable-bill-tracking-databases.aspx). The first step in the data collection process was to extract the below table via the database search. 
+
 ![](images/base_table.png)
+
 As you can see the bills already have topics assigned to them but many bills are missing values for that field and as shown later much of the value is derrived through modeling subtopics. 
 
 Once the table was extracted Python's BeautifulSoup module was employed to scrape the page's html file in order to navigate to each individual bill link and extract the bill text from each link. 
@@ -19,7 +21,6 @@ Once the table was extracted Python's BeautifulSoup module was employed to scrap
 ![](images/html_demo.png)
 
 At this point the dataset contained the following fields: 
-
 -   bill_id (str)
 -   title   (str)
 -   year    (int)
@@ -95,4 +96,4 @@ It appears that Pennsylvania has a favorable legal enviornment because there are
 ## Conclusion 
 
 
-Employing topic modeling on bill proposals across all 50 states enables companies to more efficiently monitor the regulatory landscape and asses the potential impact it has on their business. This drives more informed decision making when it comes to evaluating market opportunities and preparing for changing regulatory conditions. To keep up with the modern pace of business, all companies should consider encorporating legislative topic modeling into their decision making processes. Neglecting to do so could be considered bad policy :stuck_out_tongue_winking_eye:
+Employing topic modeling on bill proposals across all 50 states enables companies to more efficiently monitor the regulatory landscape and asses the potential impact it has on their business. This drives more informed decision making when it comes to evaluating market opportunities and preparing for changing regulatory conditions. To keep up with the modern pace of business, all companies should consider encorporating legislative topic modeling into their decision making processes. Neglecting to do so could be considered bad policy :stuck_out_tongue_winking_eye:.
