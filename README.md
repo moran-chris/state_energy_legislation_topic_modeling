@@ -82,7 +82,7 @@ The top chart shows that California and Hawaii have high levels of uncertainty, 
 
 The remainder of the analysis will take the perspective of a fictional oil and gas company called ACME, a practitioner of hydraulic fracturing. ACME is considering expanding its operations into other states, Massachusetts being one of them. Before they make any decisions they decide to review the pending legislation in MA as it relates to fracking. 
 
-They run filter model topiced data by State = MA, primary_topic = 7, status = pending and order them in descending order by the value for subtopic_2, fracking. This directs them to all the pending legislation in MA that most likely relates to their area of interest. The results of the query are shown below. 
+First the perform topic modeling with the above pipeline. They then filter the data by State = MA, primary_topic = 7, status = pending and order them in descending order by the value for subtopic_2, fracking. This directs them to all the pending legislation in MA that most likely relates to their area of interest. The results of the query are shown below. 
 ![](images/query.png)
 
 It's easy to see that the first nine results are related to fracking but the tenth result does not mention fracking in the title, topic, or summary. Upon inspection of the [bill](http://custom.statenet.com/public/resources.cgi?id=ID:bill:MA2017000S1870&ciq=ncsl29e&client_md=42dacbaeafb0a47c5f8656f9eb72ff46&mode=current_text) it proposes banning the practice, clearly an important piece of legislation for ACME to review. This example helps illustrate that topic modeling can outperform simple keyword lookups on the pre-existing fields. 
