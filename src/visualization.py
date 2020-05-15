@@ -55,11 +55,7 @@ def bills_by_party(df):
     plt.show()
 
 def bills_by_party_and_state(df):
-    #df['dem'] = df['primary_dem'].apply(lambda x: 1 if x != 0 else 0)
-    #df['rep'] = df['primary_rep'].apply(lambda x: 1 if x != 0 else 0)
-    #grouped = df[['state','rep','dem']].groupby('state',as_index = False,).sum().sort_values(by = 'rep')
     grouped = df
-    print(grouped.shape)
     fig,ax = plt.subplots()
     ind = np.arange(len(df))
     width = .35
@@ -81,17 +77,7 @@ def get_status(df):
     df['new_status'] = df['status'].apply(lambda x: x[:x.find('-') -1])
     df['new_status'] = df['new_status'].apply(lambda x: status_dict[x])
     return df
+
 if __name__ == '__main__':
     df = pd.read_pickle('../data/clustered_data.pkl')
     df_ff = pd.read_pickle('../data/fossil_fuels_data.pkl')
-    df_ff['subtopic_1'].astype(float)
-    df_frak = df_ff.loc[df_ff['subtopic_1'] > .014]
-    df_frak.reset_index(inplace =True)
-    df_frak.drop('index',axis = 1,inplace = True)
-    df_frak.index = np.arange(df_frak.shape[0])
-    df_frak['dem'] = df_frak['primary_dem'].apply(lambda x: 1 if x != 0 else 0)
-    df_frak['rep'] = df_frak['primary_rep'].apply(lambda x: 1 if x != 0 else 0)
-    grouped = df_frak[['state','rep','dem']].groupby('state',as_index = False,).sum().sort_values(by = 'rep')    #plot_topic_counts(df)
-    bills_by_party_and_state(grouped)
-    #plot_top_states(df,[1,3,7],['Climate','Vehicles/Transportation','Fossil Fuels'])
-    #bills_by_party(df)

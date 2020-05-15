@@ -5,6 +5,8 @@ from string import punctuation
 
 
 def combine_data(file_path_list):
+    ''' combines dataframe for each year''' 
+
     dfs = []
     for path in file_path_list:
         df = pd.read_pickle(path)
@@ -12,6 +14,8 @@ def combine_data(file_path_list):
     return pd.concat(dfs)
 
 def clean_df(df):
+    ''' cleans and extracts fields from dataframe '''
+
     df = df[~df['text'].isna()]
     df['state'] = df['bill_id'].apply(lambda x: x[:2])
     df.drop_duplicates(subset = ['text','state'],keep = 'first',inplace = True)
@@ -27,13 +31,17 @@ def clean_df(df):
     return df
 
 def count_party(string,party = '(D)'):
+    ''' counts the nuber of authors of a given party ''' 
+
     try:    
         party = [idx for idx in range(len(string)) if string.startswith(party,idx)] 
         return len(party)
     except:
         return 0
+
 def remove_punctuation(string, punc=punctuation):
-    # remove given punctuation marks from a string
+    ''' removes punctuation from a given string '''
+
     for character in punc:
         string = string.replace(character,'')
     return string
@@ -43,7 +51,6 @@ if __name__ == '__main__':
 
     file_paths = ['../data/pkl/energy_2020.pkl','../data/pkl/energy_2019.pkl','../data/pkl/energy_2018.pkl',
                 '../data/pkl/energy_2017.pkl','../data/pkl/energy_2016.pkl','../data/pkl/energy_2015.pkl']
-    #df = pd.read_pickle(path)
     df = combine_data(file_paths)
     df = clean_df(df)
     df.to_pickle('../data/energy_cleaned_v2.pkl')

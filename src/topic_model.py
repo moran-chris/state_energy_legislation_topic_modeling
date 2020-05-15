@@ -25,7 +25,8 @@ matplotlib.rc('font', **font)
 
 
 def lemmatize_str(string):
-    # Lemmatize a string and return it in its original format
+    ''' Lemmatize a string and return it in its original format '''
+
     w_tokenizer = nltk.tokenize.WhitespaceTokenizer()
     lemmatizer = nltk.stem.WordNetLemmatizer()
     return " ".join([lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(string)])
@@ -33,25 +34,27 @@ def lemmatize_str(string):
 
 
 def vectorize_tf(corpus):
+    ''' tokenize text and returns a term frequency matrix 
+        also removes stop words'''
+    
     vectorizer = CountVectorizer(stop_words = custom_stop_words)
     X = vectorizer.fit_transform(corpus)
     features = np.array(vectorizer.get_feature_names())
     return X, features 
 
 def vectorize_tf_idf(df, column, stop_words):
-    # Vectorize a text column of a pandas DataFrame
+    ''' tokenize text and returns a tf_idf matrix 
+        also removes stop words'''
+
     text = df[column].values
     vectorizer = TfidfVectorizer(stop_words = stop_words) 
     X = vectorizer.fit_transform(text)
     features = np.array(vectorizer.get_feature_names())
     return X, features 
 
-def get_top_words(X, features, n_features = 10):
-    # Retrieve feature names given H matrix, feature names, and number of features
-    top_word_indexes = X.argsort()[:, ::-1][:,:n_features]
-    return features[top_word_indexes]
-
 def plot_pca(X,labels):
+    ''' plots data points according to first two PCA values '''
+
     pca = TruncatedSVD(n_components = 2)
     X_pca = pca.fit_transform(X)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
@@ -68,14 +71,16 @@ def plot_pca(X,labels):
     plt.show()
 
 def get_nmf(X, n_components=7,alpha = .1):
-    # Create NMF matrixes based on a TF-IDF matrix
+    '''topic models corpus through NMF'''
+
     nmf = NMF(n_components=n_components, max_iter=100, random_state=12345, alpha=alpha)
     W = nmf.fit_transform(X)
     H = nmf.components_
     return W, H
 
 def get_topic_words(H, features, n_features):
-    # Retrieve feature names given H matrix, feature names, and number of features
+    ''' retrieve top words associated with each NMF topic '''
+
     top_word_indexes = H.argsort()[:, ::-1][:,:n_features]
     return features[top_word_indexes]
 
@@ -83,11 +88,15 @@ def document_topics(W):
     return W.argsort()[:,::-1][:,0]
 
 def get_kmeans(X):
+    ''' topic models corpus through kmeans '''
+
     kmeans = KMeans(n_clusters = 7,random_state = 1234)
     labels = kmeans.fit_predict(X)
     return kmeans,labels
 
 def kmeans_topics(X,kmeans_labels,features,n,n_words = 10):
+    ''' retrieves top words associated with kmeans topics '''
+
     topics = []
     for idx in range(n):
         mask = kmeans_labels == idx
@@ -97,6 +106,8 @@ def kmeans_topics(X,kmeans_labels,features,n,n_words = 10):
     return topics
 
 def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
+    ''' runs dataframe through topic modeling pipeline ''' 
+
     new_stop_words = list(custom_stop_words)
     new_stop_words.extend(stop)
     new_stop_words = set(new_stop_words)
@@ -119,23 +130,3 @@ if __name__ == '__main__':
     df,X,features,W,H = main(df,n =n, cluster = 7,model = 'NMF')
     topics = get_topic_words(H,features,10)
 
-    #df,X,features,W,H = main(df,n =n,cluster = 5,model = 'NMF',stop = stop_words)
-    #topics = get_topic_words(H,features,10)
-    #print(topics)
-    #topics = kmeans_topics(X,kmeans_labels,features,n,15)
-
-    #df = df.sample(n = 500, random_state = 37)
-    # df['text'] = df['text'].apply(lambda x: lemmatize_str(x))
-    # corpus = df['text']
-
-    # X, features = vectorize_tf_idf(df,'text',custom_stop_words)
-    #top_words = get_top_words(X.sum(axis = 0),features,200)
-    # n = 7
-    # kmeans,kmeans_labels = get_kmeans(X)
-    # df['cluster'] = kmeans_labels
-    # df.to_pickle('clustered_data')
-    #W, H = get_nmf(X,n)
-    #topics = get_topic_words(H,features,n)
-    #df['topic_1'] = document_topics(W)
-
-    #plot_pca(X.toarray())

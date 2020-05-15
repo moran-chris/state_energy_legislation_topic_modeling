@@ -7,14 +7,14 @@ from time import sleep
 
 
 class Scraper():
+    ''' Scraper that grabs the text for each bill'''
 
     def __init__(self,bill_csv,bill_html):
         self.bill_csv = bill_csv 
         self.bill_html = bill_html 
 
-    
     def get_data(self):
-
+        ''' structures data into a list of rows'''
         doc = np.genfromtxt(self.bill_csv, dtype = str, delimiter = '\t')
         ########################TEST############################
         bill_text_lookup = np.where(doc == 'BILL TEXT LOOKUP')[0]
@@ -34,6 +34,8 @@ class Scraper():
 
     @staticmethod 
     def _find_additional_authors(cell):
+        ''' makes additional author field from the author field'''
+
         idx = cell.find(':')
         if idx == -1:
             return None 
@@ -42,6 +44,8 @@ class Scraper():
 
     @staticmethod 
     def _clean_authors(cell):
+        ''' cleans the author field to include only primary authors'''
+
         idx = cell.find('Additional Authors')
         if idx == -1:
             return cell
@@ -49,6 +53,7 @@ class Scraper():
             return cell[:idx -1]
 
     def to_dataframe(self):
+        ''' turns self.records into a dataframe'''
 
         df = pd.DataFrame(columns = ['bill_id','title','year','status','author',
                                     'topics','summary','associated bills',
@@ -74,6 +79,8 @@ class Scraper():
         self.data = df
 
     def get_bill_links(self):
+        ''' scrapes html for bill links'''
+
         html = codecs.open(self.bill_html, "r", "utf-8")
         soup = BeautifulSoup(html.read(),'html.parser')
         links = [list(link.children)[0] for link in soup.find_all('a',href=True)]
@@ -84,6 +91,8 @@ class Scraper():
         self.bill_links = bill_links
 
     @staticmethod
+        ''' retrieves bill link html and scrapes it for text'''
+
     def _grab_one_bill_text(html_link):
         sleep(2)
         try:
@@ -98,14 +107,14 @@ class Scraper():
         return text_string
     
     def get_bill_text(self):
+        ''' implements the scraper for bill text''' 
+
         self.data['text'] = self.data['bill_links'].apply(lambda x: Scraper._grab_one_bill_text(x))
 
 
 if __name__ == '__main__':
 
 
-    # bill_csv_path = 'data/Prescription Drug Bills All - Sheet1.tsv'
-    # bill_html_path = 'data/view-source_https___www.ncsl.org_research_health_prescription-drug-statenet-database.aspx.html'
     bill_csv_path = 'data/energy_bills_2015 - Sheet1.tsv'
     bill_html_path = 'data/energy_2015.html'
     scrape = Scraper(bill_csv_path, bill_html_path)
@@ -114,6 +123,3 @@ if __name__ == '__main__':
     scrape.get_bill_links()
     scrape.get_bill_text()
     scrape.data.to_pickle('energy_2015.pkl')
-#doc = np.genfromtxt('Prescription Drug Bills - Sheet1.csv',dtype = str,delimiter = '\t')
-#page = requests.get(bill_links[0])
-#soup = BeautifulSoup(page.content,'html.parser')
