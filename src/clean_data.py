@@ -14,8 +14,8 @@ def combine_data(file_path_list):
 def clean_df(df):
     df = df[~df['text'].isna()]
     df['state'] = df['bill_id'].apply(lambda x: x[:2])
-    df = df[~df.duplicated(subset = ['text','state'])]
-    df = df[~df.duplicated(subset = ['bill_id','author'])]
+    df.drop_duplicates(subset = ['text','state'],keep = 'first',inplace = True)
+    df.drop_duplicates(subset = ['bill_id','author'],keep = 'first',inplace = True)
     df['text'] = df['text'].apply(lambda x: x.lower())
     df['text'] = df['text'].apply(lambda x: remove_punctuation(x))
     df['text'] = df['text'].apply(lambda x: x.replace("\n",' '))
@@ -23,6 +23,7 @@ def clean_df(df):
     df['primary_rep'] = df['author'].apply(lambda x: count_party(x, '(R)'))
     df['additional_dem'] = df['additional_authors'].apply(lambda x: count_party(x))
     df['additional_rep'] = df['additional_authors'].apply(lambda x: count_party(x, '(R)'))
+    df['unique_id'] = np.arange(df.shape[0])
     return df
 
 def count_party(string,party = '(D)'):
@@ -40,9 +41,9 @@ def remove_punctuation(string, punc=punctuation):
 if __name__ == '__main__':
     
 
-    file_paths = ['data/pkl/energy_2020.pkl','data/pkl/energy_2019.pkl','data/pkl/energy_2018.pkl',
-                'data/pkl/energy_2017.pkl','data/pkl/energy_2016.pkl','data/pkl/energy_2015.pkl']
+    file_paths = ['../data/pkl/energy_2020.pkl','../data/pkl/energy_2019.pkl','../data/pkl/energy_2018.pkl',
+                '../data/pkl/energy_2017.pkl','../data/pkl/energy_2016.pkl','../data/pkl/energy_2015.pkl']
     #df = pd.read_pickle(path)
     df = combine_data(file_paths)
     df = clean_df(df)
-    df.to_pickle('data/energy_cleaned.pkl')
+    df.to_pickle('../data/energy_cleaned_v2.pkl')

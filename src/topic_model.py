@@ -114,11 +114,11 @@ def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
     
 
 if __name__ == '__main__':
-    df = pd.read_pickle('clustered_data.pkl')
-    df,X,features,W,H = main(df)
-    plot_pca(X,df['clusters'].values)
-    #n = 5
-    #stop_words = get_stop_words.cluster_five_words
+    df = pd.read_pickle('../data/clustered_data.pkl')
+    n = 5
+    df,X,features,W,H = main(df,n =n, cluster = 7,model = 'NMF')
+    topics = get_topic_words(H,features,10)
+
     #df,X,features,W,H = main(df,n =n,cluster = 5,model = 'NMF',stop = stop_words)
     #topics = get_topic_words(H,features,10)
     #print(topics)
