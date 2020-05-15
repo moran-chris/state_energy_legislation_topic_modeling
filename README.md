@@ -14,7 +14,7 @@ As mentioned above, the data used was exctracted from the [NCLS' website](https:
 
 ![](images/base_table.png)
 
-As you can see, the bills already have topics assigned to them, but many bills are missing values for that field. As shown later below, much of the value is derived from modeling subtopics. 
+As you can see, the bills already have topics assigned to them, but many bills are missing values for that field. As shown later, much of the value is derived from modeling subtopics. 
 
 Once the table was extracted, Python's BeautifulSoup module was employed to scrape the page's html file, in order to navigate to each individual bill link and extract the bill text from each link. 
 
@@ -40,10 +40,9 @@ Many of these fields contained additional information related to the bill, such 
 -   additional_dem (int)
 -   additional_rep  (int)
 
-Duplicate bills were identified and removed by locating bills with identical text and state features, as well as locating bills with identical bill_ids and author. 
+Duplicate bills were identified and removed by locating bills with identical text and state features, as well as locating bills with identical bill_ids and author. After the cleaning process, 12,711 unique bills remained. 
 
 
-Discustion on number of records and how duplicates were removed 
 
 ## Topic Modeling Pipeline 
 
