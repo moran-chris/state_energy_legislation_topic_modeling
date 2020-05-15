@@ -49,7 +49,7 @@ Discustion on number of records and how duplicates were removed
 
 Each document in the corpus for topic modeling was composed of the text feature for each row in the dataset. The first step in preparing the feature for topic modeling was to convert the entire string to lowercase and remove punctuation. Each word was then passed through NLTK's WordNet lemmatizer. To reduce the impact of "legalize" and other non-descriptive words a custom stop words list was created and all words in the list were removed. The custom stop words list can be viewed in the file get_stop_words.py located in the src directory. All remaining words in the corpus were then tokenized and a term frequency inverse document frequency (tf_idf) matrix was then created using the tokens. Finally, the tf_idf matrix was then passed through a clustering algorithm (k means, NMF) to derive the topics. 
 
-![](imageoftopicmodelingpipeline) 
+![](images/flow_diagram.png) 
 
 ## Topic Selection
 
