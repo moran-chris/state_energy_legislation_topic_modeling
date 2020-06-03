@@ -27,6 +27,13 @@ def clean_df(df):
     df['primary_rep'] = df['author'].apply(lambda x: count_party(x, '(R)'))
     df['additional_dem'] = df['additional_authors'].apply(lambda x: count_party(x))
     df['additional_rep'] = df['additional_authors'].apply(lambda x: count_party(x, '(R)'))
+    df['new_status'] = df['status'].apply(lambda x: get_status(x))
+    df['passed'] = df['new_status'].apply(lambda x: 1 if x == 'passed' else 0)
+    df['bi'] = (((df['primary_dem'] + df['additional_dem']) != 0) & (
+                (df['primary_rep'] + df['additional_rep'] != 0)))
+    df['has_associated'] = df['associated_bills'].isnull()
+    df['proposed_by'] = df['bill_id'].apply(lambda x: x.split(' ')[1])
+    df['proposed_by'] = df['proposed_by'].apply(lambda x: get_proposed_by(x))
     df['unique_id'] = np.arange(df.shape[0])
     return df
 
@@ -46,6 +53,28 @@ def remove_punctuation(string, punc=punctuation):
         string = string.replace(character,'')
     return string
 
+def get_status(cell):
+    status =  cell[:(cell.find('-') - 1)]
+    if status in ['Pending','Override Pending','To Governor']:
+        return 'pending'
+    elif status in ['Adopted', 'Enacted']:
+        return 'passed'
+    elif status in ['Failed', 'Vetoed']:
+        return 'failed'
+    else:
+        return 'other'
+
+def get_proposed_by(row):
+        if row[0] == 'S':
+            return 'S'
+        elif row[0] == 'H':
+            return 'H'
+        elif row[0] == 'A':
+            return 'A'
+        else:
+            return 'O'   
+
+
 if __name__ == '__main__':
     
 
@@ -53,4 +82,4 @@ if __name__ == '__main__':
                 '../data/pkl/energy_2017.pkl','../data/pkl/energy_2016.pkl','../data/pkl/energy_2015.pkl']
     df = combine_data(file_paths)
     df = clean_df(df)
-    df.to_pickle('../data/energy_cleaned_v2.pkl')
+    #df.to_pickle('../data/energy_cleaned_v2.pkl')

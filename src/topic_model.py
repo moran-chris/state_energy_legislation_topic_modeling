@@ -62,8 +62,9 @@ def plot_pca(X,labels):
     for topic in set(labels):
         mask = labels == topic
         X_pca_masked = X_pca[mask]
-        ax.scatter(X_pca_masked[:, 0], X_pca_masked[:, 1],alpha = .5,c = plt.cm.Set1.colors[topic], label = 'Topic '+str(topic),
-           cmap=plt.cm.Set1, edgecolor='k', s=40)
+        ax.scatter(X_pca_masked[:, 0], X_pca_masked[:, 1],alpha = .5, label = 'Topic '+str(topic),
+            edgecolor='k', s=40)
+          #cmap=plt.cm.Set1, #c = plt.cm.Set1.colors[topic/2],
     ax.legend()
     ax.set_title("First two PCA directions")
     ax.set_xlabel("1st eigenvector (PC1)")
@@ -87,10 +88,10 @@ def get_topic_words(H, features, n_features):
 def document_topics(W):
     return W.argsort()[:,::-1][:,0]
 
-def get_kmeans(X):
+def get_kmeans(X, k):
     ''' topic models corpus through kmeans '''
 
-    kmeans = KMeans(n_clusters = 7,random_state = 1234)
+    kmeans = KMeans(n_clusters = k,random_state = 1234)
     labels = kmeans.fit_predict(X)
     return kmeans,labels
 
@@ -101,7 +102,7 @@ def kmeans_topics(X,kmeans_labels,features,n,n_words = 10):
     for idx in range(n):
         mask = kmeans_labels == idx
         cluster = X[mask]
-        topic = get_top_words(cluster.sum(axis = 0),features,n_words)
+        topic = get_topic_words(cluster.sum(axis = 0),features,n_words)
         topics.append(topic)
     return topics
 
@@ -112,7 +113,7 @@ def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
     new_stop_words.extend(stop)
     new_stop_words = set(new_stop_words)
     if cluster:
-        df = df.loc[df['clusters'] == cluster]
+        df = df.loc[df['clusters_2'] == cluster]
     df['text'] = df['text'].apply(lambda x: lemmatize_str(x))
     corpus = df['text']
     X, features = vectorize_tf_idf(df,'text',new_stop_words)
@@ -120,13 +121,28 @@ def main(df,n = 7,cluster = None, model = 'NMF', alpha = .1,stop = []):
         W,H = get_nmf(X,n_components = n, alpha =alpha)
         return df,X,features,W,H
     else:
-        kmeans,kmeans_labels = get_kmeans(X)
+        kmeans,kmeans_labels = get_kmeans(X,n)
         return df,X,features,kmeans,kmeans_labels
+
+def elbow_plot(input_data, num_iters):
+
+    rss = []
+    for n in range(1,num_iters+1):
+        df,X,features,kmeans,kmeans_labels = main(input_data,n =n,model = 'Kmeans')    
+        rss.append(-kmeans.score(X))
+    fig, ax = plt.subplots(figsize = (15,10))    
+    ax.plot(list(range(1,num_iters+1)),rss)
+    ax.set_title('RSS vs K', fontsize = 35)
+    ax.set_ylabel('RSS', fontsize = 30)
+    ax.set_xlabel('K', fontsize = 30)
+    plt.savefig('elbow.png')
+
     
-
 if __name__ == '__main__':
-    df = pd.read_pickle('../data/clustered_data.pkl')
-    n = 5
-    df,X,features,W,H = main(df,n =n, cluster = 7,model = 'NMF')
-    topics = get_topic_words(H,features,10)
+    data = pd.read_pickle('data_13_clusters.pkl')
+    
+    n = 6
 
+    df,X,features,W,H= main(data, n, model = 'NMF',cluster = 3)
+   # topics = kmeans_topics(X, kmeans_labels,features,n)
+    topics = get_topic_words(H,features,10)
