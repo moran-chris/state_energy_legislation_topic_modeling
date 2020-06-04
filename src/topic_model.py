@@ -139,9 +139,9 @@ def elbow_plot(input_data, num_iters):
 
     
 if __name__ == '__main__':
-    data = pd.read_pickle('data_13_clusters.pkl')
-    
-    n = 6
+    data = pd.read_pickle('../data/pkl/data_13_clusters.pkl')
+    #data = pd.read_pickle('../data/pkl/energy_cleaned_v2.pkl')
+    n = 4
 
     df,X,features,W,H= main(data, n, model = 'NMF',cluster = 3)
    # topics = kmeans_topics(X, kmeans_labels,features,n)

@@ -68,32 +68,32 @@ def get_model(model,X,y, n_splits = 2, threshold = .65):
 def add_predict_probas(model, df):
     X = df.drop(['unique_id','passed'], axis = 1).values
     df['probas'] = model.predict_proba(X)[:,1]
-    df['one'] = (df['probas'] > .1).astype(int) 
-    df['two'] = (df['probas'] > .2).astype(int)
     df['three'] = (df['probas'] > .3).astype(int)
     df['four'] = (df['probas'] > .4).astype(int)
-    df['five'] = (df['probas'] > .5).astype(int)
     df['six'] = (df['probas'] > .6).astype(int)
-    df['seven'] = (df['probas'] > .7).astype(int)
+    df['likelihood'] = df['six'] + df['four'] + df['three']
+    df.drop(['six','four','three'], axis = 1, inplace = True)
     return df 
 
-def add_predict_total(model,df):
-    X = df.drop(['unique_id','new_status','passed'], axis = 1).values
-    return model.predict_proba(X)[:,1]
+
 
 
 
 if __name__ == '__main__':
 
-    bill_df = pd.read_pickle('../data/data_13_clusters.pkl')
+    bill_df = pd.read_pickle('../data/pkl/data_13_clusters.pkl')
     bill_df = add_proposed_by(bill_df)
-    makeup_df = pd.read_pickle('../data/makeup.pkl')
+    makeup_df = pd.read_pickle('../data/pkl/makeup.pkl')
     df = merge_data(bill_df,makeup_df)
     df = pd.get_dummies(df, columns = ['state_x', 'proposed_by','clusters_2'])
     with open('xgb_model', 'rb') as file:
         model = pickle.load(file)
-    df['probas'] = add_predict_total(model, df)
+
     
+    df['probas'] = predict_probas(model, df)
+    df['cluster'] = df.merge(bill_df[['unique_id','clusters_2']], how = 'left', on = 'unique_id')
+
+
     ## Used When training 
     #df.drop(df.loc[df['new_status'] == 'pending'].index, inplace = True)
     #df.drop('new_status', axis = 1, inplace = True)
