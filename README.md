@@ -22,7 +22,7 @@ As you can see, the bills already have topics assigned to them, but these values
 
 Once the table was extracted, Python's BeautifulSoup module was employed to scrape each bills text via the bill link field. 
 
-![](images/html_demo.png)
+![](images/bill_text.png)
 
 At this point the dataset contained the following fields: 
 -   bill_id (str)
